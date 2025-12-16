@@ -50,11 +50,11 @@ mk.from.ct = function(my.ct, reversible=FALSE) {
 
 model.fits = list()
 
-for(expt in 18:35) {
+for(expt in 1:35) {
   
   L = 5
   # parameterisation for tree construction
-  tree.size = 32
+  tree.size = 64
   birth.rate = 1
   death.rate = 0.1
   expt.type = expt %% 7
@@ -324,4 +324,53 @@ png("outputs.png", width=800*sf, height=800*sf, res=72*sf)
 ggarrange(pca.plot + theme(legend.position = "none"), spread.plot, nrow=2)
 dev.off()
 
+#### 
+
+true.m = list()
+true.m[[1]] = matrix(0, nrow=5, ncol=5)
+true.m[[1]][upper.tri(true.m[[1]])] = 1
+true.m[[2]] = matrix(0.5, nrow=5, ncol=5)
+
+X2 = rbind(X, as.vector(true.m[[1]]))
+X2 = rbind(X2, as.vector(true.m[[2]]))
+
+rownames(X2) <- c(m.names[refs], "one", "two")
+keep_cols <- !is.na(X2[1, ])
+X2_clean <- X2[, keep_cols]
+pca2 <- prcomp(X2_clean, center = TRUE, scale. = FALSE)
+
+df_pca2 <- data.frame(
+  name = rownames(X2),
+  PC1 = pca2$x[, 1],
+  PC2 = pca2$x[, 2]
+)
+
+df_pca2$group = c(rep(1:length(model.fits), each = 3)-1, 100, 101)
+df_pca2$rgroup = c((rep(1:length(model.fits), each = 3)-1) %% 7, "one", "two")
+
+
+hulls2 <- df_pca2 %>%
+  group_by(group) %>%
+  # filter(n() >= 3) %>%          # need ≥ 3 points for a polygon
+  slice(chull(PC1, PC2))
+
+pca2.plot = ggplot(df_pca2, aes(PC1, PC2, colour = factor(rgroup))) +
+  geom_point(size = 1) +
+  geom_point(data=df_pca2[df_pca2$group>=100,], size = 5) +
+  geom_text_repel(aes(x=PC1, y=PC2, label=rgroup)) +
+  geom_polygon(
+    data = hulls2,
+    aes(fill = factor(group)),
+    alpha = 0.2,
+    colour = NA
+  ) +
+  theme_minimal() +
+  labs(
+    colour = "Group",
+    fill   = "Group"
+  )
+
+png("outputs-truth.png", width=800*sf, height=800*sf, res=72*sf)
+pca2.plot
+dev.off()
 
