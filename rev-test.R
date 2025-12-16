@@ -1,8 +1,25 @@
 library(phytools)
 library(hypertrapsct)
 library(hypermk)
+library(ggplot2)
+library(ggpubr)
 
 set.seed(2)
+
+# binary to decimal function
+BinToDec <- function(x) {
+  sum(2^(which(rev(unlist(strsplit(as.character(x), "")) == 1))-1))
+}
+
+# decimal to binary function
+DecToBin <- function(x, len) {
+  s = c()
+  for(j in (len-1):0)
+  {
+    if(x >= 2**j) { s=c(s,1); x = x-2**j } else { s=c(s,0)}
+  }
+  return(paste(s, collapse=""))
+}
 
 pull_orders = function(fluxes, L, order=1, w=10000, rev=FALSE) {
   fwds = which(fluxes$To > fluxes$From)
@@ -50,7 +67,7 @@ mk.from.ct = function(my.ct, reversible=FALSE) {
 
 model.fits = list()
 
-for(expt in 1:35) {
+for(expt in 0:35) {
   
   L = 5
   # parameterisation for tree construction
@@ -238,7 +255,7 @@ for(expt in 1:35) {
   dev.off()
 }
 
-save(model.fits, file="model-fits.Rdata")
+save(model.fits, file=paste0("model-fits-", L, "-", tree.size, ".Rdata", collapse=""))
 
 m.list = list()
 m.names = c()
