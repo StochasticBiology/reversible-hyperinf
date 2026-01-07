@@ -85,7 +85,7 @@ for(expt in 0:35) {
   tree.size = 50
   birth.rate = 10
   expt.type = expt %% 8
-
+  
   # accumulation rate for features (and loss rate, for reversible setup)
   if(expt.type == 0) {
     set.paths = TRUE
@@ -133,7 +133,7 @@ for(expt in 0:35) {
   #loss.rate = c(0.1, 0.1, 0.1, 0.1)*0
   
   # create random phylogeny with tree.size nodes from birth-death process parameterised as above
- # my.tree = ape::rphylo(tree.size, birth=birth.rate, death=death.rate)
+  # my.tree = ape::rphylo(tree.size, birth=birth.rate, death=death.rate)
   my.tree = ape::rtree(tree.size, br=function(...) { return(birth.rate*runif(...)) } )
   my.tree$node.label = as.character(1:my.tree$Nnode)
   tree.labels = c(my.tree$tip.label, my.tree$node.label)
@@ -161,15 +161,15 @@ for(expt in 0:35) {
         x[[this.child]] = x[[i]]
         
         if(set.paths == TRUE) {
-        if(sum(x[[this.child]]) == 0) {
-          ref = sample(start.loci, 1)
-        } else if(x[[this.child]][L] == 0) {
-          ref = which(x[[this.child]] == 0)[1]
-        } else if(x[[this.child]][1] == 0) {
-          ref = rev(which(x[[this.child]] == 0))[1]
-        } else {
-          ref = 1
-        }
+          if(sum(x[[this.child]]) == 0) {
+            ref = sample(start.loci, 1)
+          } else if(x[[this.child]][L] == 0) {
+            ref = which(x[[this.child]] == 0)[1]
+          } else if(x[[this.child]][1] == 0) {
+            ref = rev(which(x[[this.child]] == 0))[1]
+          } else {
+            ref = 1
+          }
         } else {
           poss = which(x[[this.child]] == 0)
           if(length(poss) == 1) {
@@ -217,16 +217,16 @@ for(expt in 0:35) {
     )
   
   if(cs.str == "cs") {
-  my.hhmm.out = hyperinf(ddf, my.tree2, method="hyperhmm", nboot=0)
+    my.hhmm.out = hyperinf(ddf, my.tree2, method="hyperhmm", nboot=0)
   } else {
-  my.hhmm.out = hyperinf(ddf, method="hyperhmm", nboot=0)
+    my.hhmm.out = hyperinf(ddf, method="hyperhmm", nboot=0)
   }
   
   phhmm= plot_hyperinf(my.hhmm.out)
   
   m.hhmm = pull_orders(my.hhmm.out$transitions, L, w=1)
   diag(m.hhmm) = NA
-
+  
   model.fits[[length(model.fits)+1]] = list(my.hhmm.out)
   m.list[[length(m.list)+1]] = m.hhmm
   m.names = c(m.names, paste(i-1, c("hhmm")))
@@ -235,7 +235,7 @@ for(expt in 0:35) {
   colnames(tab.hhmm) = 1:L
   rownames(tab.hhmm) = 1:L
   df.hhmm = as.data.frame(tab.hhmm)
-
+  
   p.hhmm = ggplot(df.hhmm, aes(x = Var1, y = Var2, fill = Freq)) +
     geom_tile() + scale_fill_viridis(option="magma") + 
     labs(x = "Acquired earlier", y = "Acquired\nlater", fill = "Prob")
@@ -256,12 +256,12 @@ for(expt in 0:35) {
     )      
   
   if(FALSE) {
-  sf = 2
-  fname = paste0("tester-large-hhmm-", cs.str, "-", L, "-", tree.size, "-", expt, ".png", collapse="")
-  png(fname, width=500*sf, height=350*sf, res=72*sf)
-#  print(ggarrange(plotHypercube.curated.tree(my.ct), phct, nrow=1, widths=c(1,2.5)))
-  print(plot.list[[expt+1]])
-  dev.off()
+    sf = 2
+    fname = paste0("tester-large-hhmm-", cs.str, "-", L, "-", tree.size, "-", expt, ".png", collapse="")
+    png(fname, width=500*sf, height=350*sf, res=72*sf)
+    #  print(ggarrange(plotHypercube.curated.tree(my.ct), phct, nrow=1, widths=c(1,2.5)))
+    print(plot.list[[expt+1]])
+    dev.off()
   }
 }
 
@@ -277,32 +277,14 @@ dev.off()
 
 save(model.fits, file=paste0("model-large-fits-hhmm-", cs.str, "-", L, "-", tree.size, ".Rdata", collapse=""))
 
-f1 = unique(ddf[2:ncol(ddf)])
-f2 = unique(my.ct$transitions[my.ct$transitions$from != my.ct$transitions$to, 1:2])
-
-test.out.1 = hyperinf(ddf, my.tree2, method="hyperhmm", nboot=50)
-test.out.2 = hyperinf(ddf, method="hyperhmm", nboot=50)
-  
-library(hyperhmm)
-ggplot(test.out.1$stats) +
-  geom_point(aes(x=feature, y=order, size=mean+4*sd)) + 
-  geom_point(aes(x=feature, y=order, size=mean), color="#FFFFFF")
-ggplot(test.out.2$stats) +
-  geom_point(aes(x=feature, y=order, size=mean+4*sd)) + 
-  geom_point(aes(x=feature, y=order, size=mean), color="#FFFFFF")
-
-plot_bubbles(test.out.1)
-plot_bubbles(test.out.2)
-
-my.ct$transitions
 if(FALSE) {
-m.list = list()
-m.names = c()
-for(i in 1:length(model.fits)) {
-  m.list[[i]] = pull_orders(model.fits[[i]][[1]]$transitions, L, w=1)
-  m.names = c(m.names, paste(i-1, c("hhmm")))
-  diag(m.list[[i]]) = NA
-}
+  m.list = list()
+  m.names = c()
+  for(i in 1:length(model.fits)) {
+    m.list[[i]] = pull_orders(model.fits[[i]][[1]]$transitions, L, w=1)
+    m.names = c(m.names, paste(i-1, c("hhmm")))
+    diag(m.list[[i]]) = NA
+  }
 }
 
 refs = 1:(length(model.fits))
@@ -327,7 +309,7 @@ df_pca$group = 1:length(model.fits)-1
 
 hulls <- df_pca %>%
   group_by(group) %>%
- # filter(n() >= 3) %>%          # need ≥ 3 points for a polygon
+  # filter(n() >= 3) %>%          # need ≥ 3 points for a polygon
   slice(chull(PC1, PC2))
 
 pca.plot = ggplot(df_pca, aes(PC1, PC2, colour = factor(group))) +
