@@ -96,8 +96,9 @@ plot.list = list()
 cs.str = "phy"
 L = 12
 # parameterisation for tree construction
-tree.size = 50
+tree.size = 100
 birth.rate = 10
+sf = 2 # for plotting
 
 # we have 8 different types of generative dynamics
 # looping through a higher number repeats each with a different seed, getting more samples
@@ -117,7 +118,7 @@ for(expt in 0:35) {
     start.loci = c(1,1)
   } else if(expt.type == 1) {
     set.paths = TRUE
-    accumulation.rate = rep(1, L)
+    accumulation.rate = rep(0.5, L)
     loss.rate = rep(0, L)
     start.loci = c(1,L)
   } else if(expt.type == 2) {
@@ -127,7 +128,7 @@ for(expt in 0:35) {
     start.loci = c(1,1)
   } else if(expt.type == 3) {
     set.paths = TRUE
-    accumulation.rate = rep(1, L)
+    accumulation.rate = rep(0.5, L)
     loss.rate = rep(0.02, L)
     start.loci = c(1,L)
   } else if(expt.type == 4) {
@@ -295,7 +296,7 @@ for(expt in 0:35) {
 # output megaplot set to file
 fname = paste0("tester-all-hhmm-", cs.str, "-", L, "-", tree.size, ".png", collapse="")
 png(fname, width=1000*sf, height=700*sf, res=72*sf)
-print(ggarrange(plot.list[[2]],
+print(ggarrange(plot.list[[3]],
                 plot.list[[4]],
                 plot.list[[5]],
                 plot.list[[7]], 
