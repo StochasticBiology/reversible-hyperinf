@@ -93,16 +93,16 @@ m.names = c()
 plot.list = list()
 
 # key degrees of freedom in this case study: "cs" vs "phy" data structure; tree.size = 40 vs 400
-cs.str = "cs"
+cs.str = "phy"
+L = 12
+# parameterisation for tree construction
+tree.size = 50
+birth.rate = 10
 
 # we have 8 different types of generative dynamics
 # looping through a higher number repeats each with a different seed, getting more samples
 for(expt in 0:35) {
-  
-  L = 12
-  # parameterisation for tree construction
-  tree.size = 400
-  birth.rate = 10
+
   expt.type = expt %% 8
   
   # accumulation rate for features (and loss rate, for reversible setup)
@@ -237,7 +237,7 @@ for(expt in 0:35) {
   colnames(my.ct$data) = c("Species", 1:L)
   
   # do inference, either cross-sectional or phylogenetic
-  if(cs.str == "cs") {
+  if(cs.str != "cs") {
     my.hhmm.out = hyperinf(ddf, my.tree2, method="hyperhmm", nboot=0)
   } else {
     my.hhmm.out = hyperinf(ddf, method="hyperhmm", nboot=0)
