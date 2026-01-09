@@ -12,8 +12,6 @@ library(viridis)
 # current Fig 3 is the collection of megaplots around l296 (megaplots from l269, in loop)
 # current Fig 4 is (B) the PCA plot around l479 and (A) the errors plot around l541
 
-set.seed(2)
-
 # binary to decimal function
 BinToDec <- function(x) {
   sum(2^(which(rev(unlist(strsplit(as.character(x), "")) == 1))-1))
@@ -86,23 +84,29 @@ mk.from.ct = function(my.ct, reversible=FALSE) {
                        Ntrials = 1))
 }
 
+set.seed(2)
+
 # initialise lists for output
 model.fits = list()
 m.list = list()
 m.names = c()
 plot.list = list()
 
-# key degrees of freedom in this case study: "cs" vs "phy" data structure; tree.size = 40 vs 400
+# key degrees of freedom in this case study: 
+# "cs" vs "phy" data structure
+# tree.size = 40 vs 400
 cs.str = "phy"
 L = 12
 # parameterisation for tree construction
-tree.size = 100
+tree.size = 400
 birth.rate = 10
 sf = 2 # for plotting
 
+# tree.size = 40 for illustrations in Fig 3
+
 # we have 8 different types of generative dynamics
 # looping through a higher number repeats each with a different seed, getting more samples
-for(expt in 0:35) {
+for(expt in 0:50) {
 
   expt.type = expt %% 8
   
@@ -118,7 +122,7 @@ for(expt in 0:35) {
     start.loci = c(1,1)
   } else if(expt.type == 1) {
     set.paths = TRUE
-    accumulation.rate = rep(0.5, L)
+    accumulation.rate = rep(0.2, L)
     loss.rate = rep(0, L)
     start.loci = c(1,L)
   } else if(expt.type == 2) {
@@ -128,7 +132,7 @@ for(expt in 0:35) {
     start.loci = c(1,1)
   } else if(expt.type == 3) {
     set.paths = TRUE
-    accumulation.rate = rep(0.5, L)
+    accumulation.rate = rep(0.2, L)
     loss.rate = rep(0.02, L)
     start.loci = c(1,L)
   } else if(expt.type == 4) {
@@ -293,13 +297,15 @@ for(expt in 0:35) {
   }
 }
 
+
+###### Fig 3
 # output megaplot set to file
 fname = paste0("tester-all-hhmm-", cs.str, "-", L, "-", tree.size, ".png", collapse="")
 png(fname, width=1000*sf, height=700*sf, res=72*sf)
 print(ggarrange(plot.list[[3]],
                 plot.list[[4]],
-                plot.list[[5]],
-                plot.list[[7]], 
+                plot.list[[7]],
+                plot.list[[8]], 
                 nrow=2, ncol=2, labels=c("A", "B", "C", "D")))
 dev.off()
 
@@ -539,7 +545,7 @@ for(i in 1:length(model.fits)) {
 }
 
 # plot the proportion of shared edges as a summary statistic
-ggplot(res.df[res.df$gen==1 | res.df$expt%%8 %in% c(1,3),], 
+shared.plot = ggplot(res.df[res.df$gen==1 | res.df$expt%%8 %in% c(1,3),], 
        aes(x=quick.labs[expt%%8 + 1], y=tp, color=factor(gen))) + 
   stat_summary(
     fun = mean,
@@ -553,6 +559,20 @@ ggplot(res.df[res.df$gen==1 | res.df$expt%%8 %in% c(1,3),],
        y = "Proportion of edges shared\nwith ground-truth generator",
        color = "True\nmodel") +
   theme_minimal()
+
+fname = paste0("tester-shared-hhmm-", cs.str, "-", L, "-", tree.size, ".png", collapse="")
+png(fname, width=600*sf, height=200*sf, res=72*sf)
+print(shared.plot)
+dev.off()
+
+##### Fig 4
+fname = paste0("tester-fig-4-hhmm-", cs.str, "-", L, "-", tree.size, ".png", collapse="")
+png(fname, width=600*sf, height=550*sf, res=72*sf)
+print(
+  ggarrange(shared.plot, pca2.plot, nrow=2, 
+            labels=c("A", "B"), heights=c(1,1.5))
+  )
+dev.off()
 
 # other plots
 if(FALSE) {
