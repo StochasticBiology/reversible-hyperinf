@@ -107,7 +107,7 @@ sf = 2 # for plotting
 # we have 8 different types of generative dynamics
 # looping through a higher number repeats each with a different seed, getting more samples
 for(expt in 0:50) {
-
+  
   expt.type = expt %% 8
   
   # accumulation rate for features (and loss rate, for reversible setup)
@@ -287,26 +287,26 @@ for(expt in 0:50) {
       labels=c("     i", "")
     )      
   
-  if(FALSE) {
-    sf = 2
-    fname = paste0("tester-large-hhmm-", cs.str, "-", L, "-", tree.size, "-", expt, ".png", collapse="")
-    png(fname, width=500*sf, height=350*sf, res=72*sf)
-    #  print(ggarrange(plotHypercube.curated.tree(my.ct), phct, nrow=1, widths=c(1,2.5)))
-    print(plot.list[[expt+1]])
-    dev.off()
-  }
 }
 
 
 ###### Fig 3
 # output megaplot set to file
-fname = paste0("tester-all-hhmm-", cs.str, "-", L, "-", tree.size, ".png", collapse="")
+fname = paste0("fig-3-", cs.str, "-", L, "-", tree.size, ".png", collapse="")
 png(fname, width=1000*sf, height=700*sf, res=72*sf)
 print(ggarrange(plot.list[[3]],
                 plot.list[[4]],
                 plot.list[[7]],
                 plot.list[[8]], 
                 nrow=2, ncol=2, labels=c("A", "B", "C", "D")))
+dev.off()
+
+# output megaplot set to file
+fname = paste0("si-fig-1-", cs.str, "-", L, "-", tree.size, ".png", collapse="")
+png(fname, width=1000*sf, height=350*sf, res=72*sf)
+print(ggarrange(plot.list[[1]],
+                plot.list[[2]],
+                nrow=1, ncol=2, labels=c("A", "B")))
 dev.off()
 
 # save outputs
@@ -388,10 +388,12 @@ spread.plot = ggplot(spread_df, aes(x = expt.names[(group%%8)+1], y = spread, la
   ) +
   theme_minimal()
 
-sf = 2
-png(paste0("large-outputs-hhmm-", cs.str, "-", tree.size, "-", L, ".png", collapse=""), width=800*sf, height=800*sf, res=72*sf)
-ggarrange(pca.plot + theme(legend.position = "none"), spread.plot, nrow=2)
-dev.off()
+if(FALSE) {
+  sf = 2
+  png(paste0("large-outputs-hhmm-", cs.str, "-", tree.size, "-", L, ".png", collapse=""), width=800*sf, height=800*sf, res=72*sf)
+  ggarrange(pca.plot + theme(legend.position = "none"), spread.plot, nrow=2)
+  dev.off()
+}
 
 ######## second (used) PCA plot -- comparing to known truth cases
 
@@ -483,7 +485,7 @@ pca2.plot = ggplot(df_pca2, aes(PC1, PC2, colour = factor(rgroup))) +
   theme(legend.position="none")
 
 # output plot
-png(paste0("large-outputs-hhmm-truth-", cs.str, "-", tree.size, "-", L, ".png", collapse=""), width=800*sf, height=250*sf, res=72*sf)
+png(paste0("si-fig-2-", cs.str, "-", tree.size, "-", L, ".png", collapse=""), width=800*sf, height=250*sf, res=72*sf)
 pca2.plot
 dev.off()
 
@@ -546,7 +548,7 @@ for(i in 1:length(model.fits)) {
 
 # plot the proportion of shared edges as a summary statistic
 shared.plot = ggplot(res.df[res.df$gen==1 | res.df$expt%%8 %in% c(1,3),], 
-       aes(x=quick.labs[expt%%8 + 1], y=tp, color=factor(gen))) + 
+                     aes(x=quick.labs[expt%%8 + 1], y=tp, color=factor(gen))) + 
   stat_summary(
     fun = mean,
     fun.min = \(x) mean(x) - sd(x),
@@ -566,25 +568,25 @@ print(shared.plot)
 dev.off()
 
 ##### Fig 4
-fname = paste0("tester-fig-4-hhmm-", cs.str, "-", L, "-", tree.size, ".png", collapse="")
+fname = paste0("fig-4-hhmm-", cs.str, "-", L, "-", tree.size, ".png", collapse="")
 png(fname, width=600*sf, height=550*sf, res=72*sf)
 print(
   ggarrange(shared.plot, pca2.plot, nrow=2, 
             labels=c("A", "B"), heights=c(1,1.5))
-  )
+)
 dev.off()
 
 # other plots
 if(FALSE) {
-ggplot(res.df, aes(x=expt%%8, y=nzrmse, color=factor(gen))) + geom_jitter(width=0.2, height=0)
-
-ggarrange(
-  ggplot(res.df, aes(x=expt%%8, y=tp, color=factor(gen))) + geom_jitter(width=0.2),
-  ggplot(res.df, aes(x=expt%%8, y=fp, color=factor(gen))) + geom_jitter(width=0.2),
-  ggplot(res.df, aes(x=expt%%8, y=tn, color=factor(gen))) + geom_jitter(width=0.2),
-  ggplot(res.df, aes(x=expt%%8, y=fn, color=factor(gen))) + geom_jitter(width=0.2),
-  labels = c("TP","FP","TN","FN")
-)
+  ggplot(res.df, aes(x=expt%%8, y=nzrmse, color=factor(gen))) + geom_jitter(width=0.2, height=0)
+  
+  ggarrange(
+    ggplot(res.df, aes(x=expt%%8, y=tp, color=factor(gen))) + geom_jitter(width=0.2),
+    ggplot(res.df, aes(x=expt%%8, y=fp, color=factor(gen))) + geom_jitter(width=0.2),
+    ggplot(res.df, aes(x=expt%%8, y=tn, color=factor(gen))) + geom_jitter(width=0.2),
+    ggplot(res.df, aes(x=expt%%8, y=fn, color=factor(gen))) + geom_jitter(width=0.2),
+    labels = c("TP","FP","TN","FN")
+  )
 }
 
 
